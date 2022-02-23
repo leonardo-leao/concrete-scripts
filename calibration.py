@@ -188,7 +188,7 @@ class Calibration():
             convertion = Calibration.PT100_A * value**2 + Calibration.PT100_B * value + Calibration.PT100_C
             return round(convertion, 3)
         except:
-            return "erro"
+            return f"{value} contém um erro"
     
     @staticmethod
     def convertVWTS6000(muxId, channel, value):
@@ -203,7 +203,7 @@ class Calibration():
             convertion = VWTS6000_A * value**2 + VWTS6000_B * value + VWTS6000_C
             return round(convertion, 3)
         except:
-            return "erro"
+            return f"{value} contém um erro"
     
     @staticmethod
     def convertVWS2100(channel, value):
@@ -219,7 +219,7 @@ class Calibration():
             convertion = ((value**2)/1000) * VWS2100_BF * VWS2100_GF
             return round(convertion, 3)
         except:
-            return "erro"
+            return f"{value} contém um erro"
     
     @staticmethod
     def convertChannelB(value):
@@ -231,18 +231,18 @@ class Calibration():
             convertion = convertion**(-1) - 273.2
             return round(convertion, 3)
         except:
-            return "erro"
+            return f"{value} contém um erro"
 
     @staticmethod
     def convert(muxID, position, value):
-        channel = (position // 2) + 1
+        channel = (position-1) // 2
         sensor = Calibration.muxHeader["mux%d" % muxID][channel - 1]
 
         # Verify if value is not Disable
         if "Dis" not in value:
             
             # Identify if the subchannel is A
-            if position % 2 == 0:
+            if position % 2 == 1:
                 if sensor == "PT100":
                     value = Calibration.convertPT100(value)
                 elif sensor == "VWS2100":
@@ -252,7 +252,7 @@ class Calibration():
             else:
                 value = Calibration.convertChannelB(value)
 
-        return value 
+        return (channel, value) 
 
     @staticmethod
     def createHeader():

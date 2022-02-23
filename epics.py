@@ -11,8 +11,8 @@ from pv import PvProperties as pvp
 class EpicsDriver(Driver):
 
     # Initialize the Epics driver
-    def _init_(self):
-        super(EpicsDriver, self)._init_()
+    def __init__(self):
+        super(EpicsDriver, self).__init__()
 
     # Function responsible for writing in the PV
     def write(self, reason, value):
