@@ -4,7 +4,7 @@
     @title: CSV functions
 """
 
-import numpy as np
+from numpy import log as ln
 
 class Calibration():
     
@@ -125,18 +125,6 @@ class Calibration():
     VWS2100_BATCH57 = [0.935, 3.718]
     VWS2100_BATCH58 = [0.924, 3.718]
     
-    """ Coeficientes do polinomio de conversão dos sensores PT100 """
-    
-    PT100_A = 0.0010664
-    PT100_B = 2.3419
-    PT100_C = -244.83
-    
-    """ Coeficientes da fórmula de Steinhart & Hart, disponível no site da Geosense """
-    
-    NTC_A = 1.4051e-3
-    NTC_B = 2.369e-4
-    NTC_C = 1.019e-7
-    
     """ Implementação dos cabeçalhos dos arquivos .CSV """
     MUXactivated = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,20,21,22,23,24,25,26,27,28,29]
     
@@ -172,23 +160,26 @@ class Calibration():
             "mux29": ["VWTS6000", "PT100", "VWTS6000", "VWS2100", "VWS2100", "PT100", "PT100", "PT100", "PT100", "PT100", "PT100", "VWS2100", "VWS2100", "PT100", "PT100", "VWS2100"],
         }
     
-    G8header = ["ID", "Datetime", "Volt. [V]", "Temp. [°C]"]
-    
-    aux = []
-    
     """ relação de muxs e número de canais """
     
     mux_ch = [8,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,12,16,16,12,16,16,12,16,16,16,12,16,16]
 
     @staticmethod
-    def convertPT100(value):
+    def convertPT100(ohms):
         try:
-            value = float(value)
-            # Convertion to Celsius degrees
-            convertion = Calibration.PT100_A * value**2 + Calibration.PT100_B * value + Calibration.PT100_C
-            return round(convertion, 3)
+            # Calibration constants
+            A = 0.0010664
+            B = 2.3419
+            C = -244.83
+
+            # Callendar-Van Dusen equation: ohms to celsius
+            converted = A*(ohms**2) + B*ohms + C
+            converted = round(converted, 3)
+
+            return converted
+
         except:
-            return f"{value} contém um erro"
+            return f"{ohms} contém um erro"
     
     @staticmethod
     def convertVWTS6000(muxId, channel, value):
@@ -222,16 +213,21 @@ class Calibration():
             return f"{value} contém um erro"
     
     @staticmethod
-    def convertChannelB(value):
+    def convertNTC(ohms):
         try:
-            value = float(value)
-            # Convertion to Celsius degrees
-            convertion = (Calibration.NTC_A + Calibration.NTC_B * np.log(float(value)) 
-                             + Calibration.NTC_C * (np.log(float(value))**3))
-            convertion = convertion**(-1) - 273.2
-            return round(convertion, 3)
+            # Calibration constants
+            A = 1.4051e-3
+            B = 2.369e-4
+            C = 1.019e-7
+
+            # Steinhart–Hart equation: ohms to celsius
+            converted = (1 / (A + B*ln(ohms) + C*ln(ohms)**3)) - 273.2
+            converted = round(converted, 3)
+            
+            return converted
+
         except:
-            return f"{value} contém um erro"
+            return f"{ohms} contém um erro"
 
     @staticmethod
     def convert(muxID, position, value):
@@ -240,6 +236,9 @@ class Calibration():
 
         # Verify if value is not Disable
         if "Dis" not in value:
+
+            # Checking if the analysed value is a float
+            value = float(value)
             
             # Identify if the subchannel is A
             if position % 2 == 1:
@@ -250,21 +249,6 @@ class Calibration():
                 else:
                     value = Calibration.convertVWTS6000(muxID, channel, value)
             else:
-                value = Calibration.convertChannelB(value)
+                value = Calibration.convertNTC(value)
 
         return (channel, value) 
-
-    @staticmethod
-    def createHeader():
-        header = []
-        for i in range(1, 30):
-            if i in Calibration.MUXactivated:
-                header += Calibration.G8header
-                for j in range(len(Calibration.muxHeader["mux%d" % i])):
-                    if Calibration.muxHeader["mux%d" % i][j] == "PT100" or Calibration.muxHeader["mux%d" % i][j] == "VWTS6000":
-                        unidade = "°C"
-                    else:
-                        unidade = "uE"
-                    header.append("Ch%dA [%s]" % (j + 1, unidade))
-                    header.append("Ch%dB [%s]" % (j + 1, unidade))
-        return header

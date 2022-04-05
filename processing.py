@@ -12,7 +12,7 @@ import os
 import time
 import threading
 import pandas as pd
-# from epics import EpicsServer
+from epics import EpicsServer
 from actions import Actions as act
 from calibration import Calibration
 
@@ -29,8 +29,8 @@ class Processing(threading.Thread):
         self.ftp_directory = "C:/Users/leonardo.leao/Desktop/usr/data/ftp-concrete/"
 
         # Initialize the Epics server
-        # self.server = EpicsServer()
-        # self.server.start()
+        self.server = EpicsServer()
+        self.server.start()
 
     # Convert received data and set to Epics
     def fileManipulation(self, directory, filename):
@@ -50,7 +50,7 @@ class Processing(threading.Thread):
                 if position >= 3:
                     channel, converted = Calibration.convert(muxID, position, subvalue)
                     print(f"{channel}: {converted}")
-                    # self.server.update(muxID, (position // 2) + 1, position % 2, converted)
+                    self.server.update(muxID, (position // 2) + 1, position % 2, converted)
                 position += 1
 
     def run(self):

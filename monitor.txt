@@ -1,0 +1,6 @@
+[05/04/2022 14:00:09] File monitor was started 
+[05/04/2022 14:01:54] Size changed in DT0008.CSV: 7081558 kb -> 7082505 kb 
+[05/04/2022 14:03:12] File monitor was started 
+[05/04/2022 14:03:20] Size changed in DT0008.CSV: 7082505 kb -> 7083452 kb 
+[05/04/2022 14:04:33] File monitor was started 
+[05/04/2022 14:04:44] Size changed in DT0008.CSV: 7083452 kb -> 7084399 kb 
