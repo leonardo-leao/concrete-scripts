@@ -26,7 +26,7 @@ class Processing(threading.Thread):
         self.kill = threading.Event()
 
         # FTP directory
-        self.ftp_directory = "C:/Users/leonardo.leao/Desktop/usr/data/ftp-concrete/"
+        self.ftp_directory = "/usr/data/ftp-concrete/"
 
         # Initialize the Epics server
         self.server = EpicsServer()
