@@ -1,0 +1,4 @@
+[06/04/2022 12:19:33] EPICS server and driver was started 
+[06/04/2022 12:20:00] EPICS server and driver was started 
+[06/04/2022 12:21:17] EPICS server and driver was started 
+[06/04/2022 12:21:59] EPICS server and driver was started 

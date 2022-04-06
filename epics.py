@@ -32,7 +32,7 @@ class EpicsServer(threading.Thread):
         super(EpicsServer, self)._init_()
 
     # Update PV data
-    def update(mux, channel, subchannel, value):
+    def update(self, mux, channel, subchannel, value):
         subchannel = "A" if subchannel == 0 else "B"
         pv = pvp.pvName(mux, channel, subchannel)
         if pv != "Dis.":
