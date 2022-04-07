@@ -4,7 +4,6 @@
     @update april, 07, 2022
 """
 
-import json
 import threading
 from actions import Actions as act
 from pcaspy import SimpleServer, Driver
