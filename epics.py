@@ -1,8 +1,10 @@
 """
     @author Leonardo Rossi Leão
     @create february, 02, 2022
+    @update april, 07, 2022
 """
 
+import json
 import threading
 from actions import Actions as act
 from pcaspy import SimpleServer, Driver
@@ -33,18 +35,23 @@ class EpicsServer(threading.Thread):
 
     # Update PV data
     def update(self, mux, channel, subchannel, value):
-        subchannel = "A" if subchannel == 0 else "B"
         pv = pvp.pvName(mux, channel, subchannel)
-        if pv != "Dis.":
-            EpicsServer.driver.write(pv, value)
+        if pv not in ["Dis.", ""] and value != "Dis.":
+            EpicsServer.driver.write(pv.replace("TU-", ""), value)
             EpicsServer.updateMonitor[pv] = act.getDatetime()
+
+            # Update the monitoring file of pv update
+            with open("pvMonitor.txt", 'w') as f: 
+                for key, value in sorted(EpicsServer.updateMonitor.items()): 
+                    f.write('TU-%s: %s\n' % (key, value))
+    
         else:
-            act.recordAction("PV is disable", "epicsMonitor.txt")        
+            act.recordAction(f"PV of channel {channel}{subchannel} is disable", "epicsMonitor.txt")        
         
     def run(self):
         server = SimpleServer()
         server.createPV("TU-", pvp.pvdb())
         EpicsServer.driver = EpicsDriver()
-        act.recordAction("EPICS server and driver was started", "rawMonitor.txt")
+        act.recordAction("EPICS server and driver was started", "epicsMonitor.txt")
         while True:
             server.process(0.1)

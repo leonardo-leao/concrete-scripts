@@ -1,6 +1,7 @@
 """
     @author Leonardo Rossi Leão
     @create february, 02, 2022
+    @update april, 07, 2022
 
     These scripts process the data got by
     GeoLogger G8 and sensors of temperature and
@@ -28,7 +29,7 @@ class Processing(threading.Thread):
         self.kill = threading.Event()
 
         # FTP directory
-        self.ftp_directory = "/usr/data/ftp-concrete/"
+        self.ftp_directory = "C:/Users/ASUS/Desktop/usr/data/ftp-concrete/"
 
         # Initialize the Epics server
         self.server = EpicsServer()
@@ -51,8 +52,8 @@ class Processing(threading.Thread):
             for subvalue in value.split(";"):
                 if position >= 3:
                     channel, converted = Calibration.convert(muxID, position, subvalue)
-                    print(f"{channel}: {converted}")
-                    self.server.update(muxID, (position // 2) + 1, position % 2, converted)
+                    subchannel = "A" if (position % 2) == 1 else "B"
+                    self.server.update(muxID, channel, subchannel, converted)
                 position += 1
 
     def run(self):
